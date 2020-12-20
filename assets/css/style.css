@@ -1,0 +1,52 @@
+::-webkit-scrollbar {
+	width: 0px;
+}
+body {
+	font-family: 'Ruda', sans-serif !important;
+	font-weight: bolder;
+  }
+.az-header-message{
+	margin-left: 15px;
+}
+.tabs{
+	font-family: Roboto;
+}
+.transactions {
+	height: 100%;
+}
+.form-control {
+	border-radius: 10px;
+}
+.btn{
+	font-size: 2rem;
+}
+.new::before {
+	display: none;
+}
+
+#modaldemo3,
+#settingsModal,
+#registrationModal,
+#scrollableModal {
+	background-color: rgba(0, 0, 0, .8);
+}
+@media (max-width: 768px){
+	.card-footer{
+		display: none;
+	}
+
+}
+@media (max-width: 576px){
+	.card-table-two{
+		margin-top: 4px ;
+	}
+}
+@media (min-width: 960px){
+	.az-chat-footer{
+		border-radius: 10px;
+	}	
+}
+
+
+
+

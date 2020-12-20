@@ -1,0 +1,187 @@
+.main-blocks {
+	padding: 20px;
+	margin: 20px;
+	border-radius: 4px;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.az-content-dashboard-ten .az-content-title {
+	font-size: 28px;
+	font-weight: 500;
+	letter-spacing: normal;
+}
+
+.main-head-sl {
+	padding-top: 10px;
+	padding-bottom: 15px;
+}
+
+.card-table-one .card-title {
+	box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+}
+
+.table thead th,
+.table thead td {
+	text-transform: capitalize;
+}
+
+.input-group input[type="radio"],
+.input-group input[type="checkbox"] {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.az-content-dashboard-ten .card {
+	margin-top: 30px;
+}
+
+textarea.form-control,
+select.form-control,
+input[type='text'].form-control,
+input[type='email'].form-control,
+input[type='password'].form-control,
+input[type='number'].form-control {
+	border-radius: 4px;
+}
+
+
+.form-group label {
+	font-weight: 500;
+}
+
+span.mseq {
+	margin: auto;
+	border-radius: 4px;
+	width: 28px !important;
+	height: 28px !important;
+	line-height: 24px !important;
+}
+
+.btn {
+	border-radius: 4px;
+}
+
+.main-submit-fotter-block .btn+.btn {
+	margin-left: 6px;
+}
+
+/*  */
+
+.ui-state-default,
+.ui-widget-content .ui-state-default,
+.ui-widget-header .ui-state-default,
+.ui-button,
+html .ui-button.ui-state-disabled:hover,
+html .ui-button.ui-state-disabled:active,
+.ui-jqgrid .ui-jqgrid-view,
+.ui-common-table td,
+.ui-common-table th {
+	border-color: #dadada !important;
+}
+
+.ui-jqgrid .ui-pg-table td {
+	padding-top: 5px !important;
+	padding-bottom: 5px !important;
+}
+
+.ui-jqgrid .ui-jqgrid-toppager .ui-pager-control,
+.ui-jqgrid .ui-jqgrid-pager .ui-pager-control {
+	height: auto !important;
+}
+
+.ui-jqgrid .ui-pg-table td {
+	padding-left: 10px !important;
+	padding-right: 10px !important;
+}
+
+.ui-jqgrid .ui-jqgrid-pager .ui-pager-table,
+.ui-jqgrid .ui-jqgrid-toppager .ui-pager-table {
+	border: 1px solid #dadada;
+	border-top: none;
+}
+
+/* .ui-jqgrid .ui-jqgrid-btable {
+	border-collapse: collapse !important;
+}
+
+.ui-jqgrid .ui-jqgrid-bdiv {
+	width: 100% !important;
+	overflow: hidden;
+} */
+
+.ui-jqgrid .ui-pg-button span {
+	text-align: center;
+	border-radius: 4px;
+	background: rgb(76, 79, 82) !important;
+	font-size: 15px;
+	width: 40px !important;
+}
+
+span.ui-icon.ui-icon-seek-next:before,
+span.ui-icon.ui-icon-seek-prev:before {
+	font-family: inherit !important;
+	font-weight: 500;
+	line-height: 2;
+	display: block;
+	transform: scaleY(1.5);
+	transform-origin: center;
+}
+
+.ui-jqgrid td input,
+.ui-jqgrid td select,
+.ui-jqgrid td textarea {
+	font-size: 12px !important;
+	height: auto !important;
+	padding: 5px !important;
+	outline: none;
+	margin: 0 10px !important;
+}
+
+.ui-widget-content div.ui-state-default {
+	background: #efefef !important;
+}
+
+table.ui-common-table thead th.ui-state-default {
+	background-color: rgb(221, 229, 236) !important;
+	border-color: #c9c9c9 !important;
+}
+
+table.ui-common-table thead th.ui-state-default:last-child {
+	border-right: none !important;
+}
+
+.ui-jqgrid .ui-jqgrid-pager .ui-paging-info,
+.ui-jqgrid .ui-jqgrid-toppager .ui-paging-info {
+	font-size: 12px !important;
+	margin-right: 15px !important;
+}
+
+.ui-jqgrid .loading {
+	font-size: 15px !important;
+	border-radius: 4px !important;
+	padding: 10px 15px !important;
+	background-color: rgba(114, 181, 181, 0.5) !important;
+	box-shadow: 0 0 50px #fff;
+}
+
+/*  */
+
+.az-footer {
+	background-color: #fff;
+}
+
+.btn-warning {
+	color: #fff !important;
+}
+
+/*  */
+
+table .input-group {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+table th {
+	padding-left: 5px !important;
+	padding-right: 5px !important;
+}

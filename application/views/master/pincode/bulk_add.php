@@ -24,6 +24,11 @@
         </form>
     </div>
     <div class="col-md-12">
+        <div class="progress " style="display:none;">
+            <div class="progress-bar progress-bar-striped active progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="updated_count" style="padding:10px;">
+        </div>
         <div class="total_count"></div>
     </div>
 </div>
@@ -40,18 +45,53 @@ $(document).on('submit','.upload_excel',function(e){
         $.ajax({
             type: "POST",
             url: "<?php echo $submit_url ?>",
-            method:"POST",
+            method: "POST",
+            // dataType: "json",
             data:new FormData(this),
             contentType:false,
             cache:false,
             processData:false,
-            dataType: "json",
+            async : true,
+            beforeSend:function(data){
+                $('.progress').css('display','block');
+            },
             success:function(data){
-               $('.total_count').html(data);
+                progressFetch(1);
             }
         });
-
 });
+
+
+function progressFetch(id){
+    $.ajax({
+            type: "POST",
+            url: "<?php echo base_url(); ?>Master/processData/"+id,
+            dataType: "json",
+            success:function(data){
+                    $('.updated_count').html("Updated Count : "+data.updated_count+" , Error Count : "+data.error_count);
+                    var total = data.total_count;
+                    var present = data.process_count;
+                    var percent = Math.round((present/total)*100);
+                    $('.progress-bar').css('width',percent+'%');
+                    $('.progress-bar').attr('aria-valuenow',percent);
+                    $('.progress-bar').html(''+present+'/'+total+'');
+                    listError();
+                if(data.process){
+                    progressFetch(data.next_count);
+                }
+            }
+        });
+}
+
+function listError(){
+    $.ajax({
+            type: "POST",
+            url: "<?php echo base_url(); ?>Master/fetchExist",
+            success:function(data){
+                $('.total_count').html(data);
+            }
+        });
+}
 </script>
 
 

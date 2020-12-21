@@ -515,6 +515,26 @@ class UtilityModel extends CI_Model {
         $result = $this->db->get();
         return $result->result_array();
     }
+
+
+    function update_where($tablename,$data = array(), $where = array()) 
+    {
+        if (count($where)) {
+            if ($this->db->update($tablename , $data, $where)) {
+                $id = get_array_value($where, "id");
+                if ($id) {
+                    return $id;
+                } else {
+                    return true;
+                }
+            }
+        }
+    }
+
+    function truncate($tablename)
+    {
+        $this->db->truncate($tablename);
+    }
 }
 
 ?>

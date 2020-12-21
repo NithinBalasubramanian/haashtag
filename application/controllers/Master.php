@@ -1878,45 +1878,99 @@ class Master extends CI_Controller {
 
     function bulkImportSave(){
         $this->load->library('excel');
-        $pinexist_count = 0;
-        $data = array();
-        $pin_data = array();
+        $status = array();
+        $this->UtilityModel->truncate('haashtag_pincode_temp');
+        $this->UtilityModel->truncate('haashtag_pincode_error');
+        $this->UtilityModel->truncate('haashtag_pintemp_data');
         if(isset($_FILES["bulkPincode"]["name"]))
-		 {
+		{
 		 $path = $_FILES["bulkPincode"]["tmp_name"];
 		 $object = PHPExcel_IOFactory::load($path);
 		 foreach($object->getWorksheetIterator() as $worksheet)
 			{
                 $highestRow = $worksheet->getHighestRow();
-                $data['total'] = $highestRow;
+                $totalData = $highestRow-1;
+                $status['total_count'] = $totalData;
+                $status['present_count'] = 0;
 		 	    $highestColumn = $worksheet->getHighestColumn();
 		 	for($row=2; $row<=$highestRow; $row++)
-		 	{
-             $country_code = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
-             $country_name = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
-             $zone_code = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
-             $zone_name = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
-             $state_code = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
-             $state_name = $worksheet->getCellByColumnAndRow(5, $row)->getValue();
-             $city_name = $worksheet->getCellByColumnAndRow(6, $row)->getValue();
-             $pin_code = $worksheet->getCellByColumnAndRow(7, $row)->getValue();
-             
-             $pin_check = $this->UtilityModel->val_check('haashtag_pincode','pincode',$pin_code);
-             $count = count($pin_check); 
-             
-             if($count == 0){
-                $country_check = $this->UtilityModel->val_check('haashtag_country','country_code',$country_code,'name',$country_name);
+                {
+                    $country_code = $worksheet->getCellByColumnAndRow(0, $row)->getValue();
+                    $country_name = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
+                    $country_phone_code = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
+                    $country_type = $worksheet->getCellByColumnAndRow(3, $row)->getValue();
+                    $zone_code = $worksheet->getCellByColumnAndRow(4, $row)->getValue();
+                    $zone_name = $worksheet->getCellByColumnAndRow(5, $row)->getValue();
+                    $state_code = $worksheet->getCellByColumnAndRow(6, $row)->getValue();
+                    $state_name = $worksheet->getCellByColumnAndRow(7, $row)->getValue();
+                    $state_gst = $worksheet->getCellByColumnAndRow(8, $row)->getValue();
+                    $city_name = $worksheet->getCellByColumnAndRow(9, $row)->getValue();
+                    $pin_code = $worksheet->getCellByColumnAndRow(10, $row)->getValue();
+                    
+                    $temp_data = array(
+                        'country_code' => $country_code,
+                        'country_name' => $country_name,
+                        'phone_code' => $country_phone_code,
+                        'type' => $country_type,
+                        'zone_code' => $zone_code,
+                        'zone_name' => $zone_name,
+                        'state_code' => $state_code,
+                        'state_name' => $state_name,
+                        'gst' => $state_gst,
+                        'city_name' => $city_name,
+                        'pincode' => $pin_code,
+                    );
+                    $this->UtilityModel->insertThisData('haashtag_pintemp_data',$temp_data);
+                    $pin_status = $this->UtilityModel->val_check('haashtag_pincode_temp');
+                        if(count($pin_status) > 0){
+                            $where['id'] = '1';
+                            $this->UtilityModel->update_where('haashtag_pincode_temp',$status,$where);
+                        }else{
+                            $this->UtilityModel->insertThisData('haashtag_pincode_temp',$status);
+                        }
+                } 
+            }
+        }
+    }
+
+    public function processData($id)
+    {
+        $fetchprogress = $this->UtilityModel->val_check('haashtag_pincode_temp');
+        foreach($fetchprogress as $row){
+            $list_count = $row['total_count'];
+        }
+        $temp_data_collection = $this->UtilityModel->val_check('haashtag_pintemp_data','id',$id);
+        foreach($temp_data_collection as $row)
+        {
+            $pincode = $row['pincode'];
+            $country_code = $row['country_code'];
+            $country_name = $row['country_name'];
+            $phone_code = $row['phone_code'];
+            $type = $row['type'];
+            $zone_code = $row['zone_code'];
+            $zone_name = $row['zone_name'];
+            $state_code = $row['state_code'];
+            $state_name = $row['state_name'];
+            $gst = $row['gst'];
+            $city_name = $row['city_name'];
+            $pin_code = $row['pincode'];
+
+            $pin_check = $this->UtilityModel->val_check('haashtag_pincode','pincode',$pin_code);
+            $count = count($pin_check); 
+            if($count == 0){
+                $country_check = $this->UtilityModel->val_check('haashtag_country','country_code',$country_code);
                 if(count($country_check) == 0){
                     $country_data = array(
                         'country_code' => $country_code,
                         'name' => $country_name,
-                        'code' => 'TS',
+                        'phone_code' => $phone_code,
+                        'type' => $type,
                         'status' => '1',
                         'entry_date_time'=> date('Y-m-d H:i:s'),
                     );
                     $this->UtilityModel->insertThisData('haashtag_country',$country_data);
                 }
-                $zone_check = $this->UtilityModel->val_check('haashtag_zone','zone_code',$zone_code,'name',$zone_name,'country_code',$country_code);
+                $zone_check = $this->UtilityModel->val_check('haashtag_zone','zone_code',$zone_code);
                 if(count($zone_check) == 0){
                     $zone_data = array(
                         'country_code' => $country_code,
@@ -1927,7 +1981,7 @@ class Master extends CI_Controller {
                     );
                     $this->UtilityModel->insertThisData('haashtag_zone',$zone_data);
                 }
-                $state_check = $this->UtilityModel->val_check('haashtag_state','state_code',$state_code,'name',$state_name,'zone_code',$zone_code);
+                $state_check = $this->UtilityModel->val_check('haashtag_state','state_code',$state_code,'zone_code',$zone_code);
                 if(count($state_check)>0){
                     $pin_data['state_code'] = $state_code;
                 }else{
@@ -1936,6 +1990,7 @@ class Master extends CI_Controller {
                         'zone_code' => $zone_code,
                         'state_code' => $state_code,
                         'name' => $state_name,
+                        'gst_code' => $gst,
                         'status' => '1',
                         'entry_date_time'=> date('Y-m-d H:i:s'),
                     );
@@ -1962,17 +2017,97 @@ class Master extends CI_Controller {
                 $pin_data['is_deliverable'] = '1';
                 $pin_data['entry_date_time'] = date('Y-m-d H:i:s');
                 $this->UtilityModel->insertThisData('haashtag_pincode',$pin_data);
-             }else{
-                $pinexist_count += 1;
-                $data['pin_exist'] = $pinexist_count;
-             }
-             echo json_encode($data);
-		 	}
-		 }
-		 }
+            }else{
+                $exist_data = array(
+                    'pin_id' => $row['id'],
+                    'error' => 'Pincode Exists',
+                );
+                $this->UtilityModel->insertThisData('haashtag_pincode_error',$exist_data);
+            }
+        }
+        $pin_error_check = $this->UtilityModel->val_check('haashtag_pincode_error');
+        $errors = count($pin_error_check);
+        $updated = $id-$errors;
+        $disp_data['updated_count'] = $updated;
+        $disp_data['error_count'] = $errors;
+        $disp_data['total_count'] = $list_count;
+        $disp_data['process_count'] = $id;
+        $next_count = $id+1;
+        $disp_data['next_count'] = $next_count;
+        if($list_count >= $next_count){
+            $disp_data['process'] = TRUE;
+        }
+        else{
+            $disp_data['process'] = FALSE;
+        }
+        echo json_encode($disp_data);
     }
 
+    public function fetchExist()
+    { 
+        $i=1;
+        $output = '';
+        $pin_error_check = $this->UtilityModel->val_check('haashtag_pincode_error');
+        if(count($pin_error_check) > 0)
+        {
+        $output .= '<div class="table-responsive">
+                        <table class="table">';
+                        if($i == 1){ 
+                            $output .='<tr>
+                                <th>S No</th> 
+                                <th>Country Code</th> 
+                                <th>Country Name</th> 
+                                <th>Phone Code</th> 
+                                <th>Type</th> 
+                                <th>Zone Code</th> 
+                                <th>Zone Name</th> 
+                                <th>State Code</th> 
+                                <th>State Name</th> 
+                                <th>GST Code</th> 
+                                <th>City Name</th> 
+                                <th>Pincode</th>   
+                                <th>Error</th> 
+                            </tr>';
+                        }
+        foreach($pin_error_check as $row)
+        {
+            $pin_exist_array = $this->UtilityModel->val_check('haashtag_pintemp_data','id',$row['pin_id']);
+            
+            foreach($pin_exist_array as $pin_row){
+                $output .='<tr style="color:red;">
+                                <td>'.$pin_row["id"].'</td>
+                                <td>'.$pin_row["country_code"].'</td>
+                                <td>'.$pin_row["country_name"].'</td>
+                                <td>'.$pin_row["phone_code"].'</td>
+                                <td>'.$pin_row["type"].'</td>
+                                <td>'.$pin_row["zone_code"].'</td>
+                                <td>'.$pin_row["zone_name"].'</td>
+                                <td>'.$pin_row["state_code"].'</td>
+                                <td>'.$pin_row["state_name"].'</td>
+                                <td>'.$pin_row["gst"].'</td>
+                                <td>'.$pin_row["city_name"].'</td>
+                                <td>'.$row["error"].'</td>
+                                <td>Pincode Exist</td>
+                            </tr>';
+            }
+            }
+            $output .= '</table>
+                        </div>';
+                        $i++;
+            echo $output;
+        }
+    }
 
+    public function fetchProgress(){
+        $data = array();
+        $fetchprogress = $this->UtilityModel->val_check('haashtag_pincode_temp');
+        foreach($fetchprogress as $row){
+            $data['progress_val'] = $row['present_count'];
+            $data['total_row'] = $row['total_count'];
+        }
+        
+        echo json_encode($data);
+    }
 }
 
 ?>

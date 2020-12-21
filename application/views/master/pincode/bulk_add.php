@@ -12,16 +12,26 @@
         <label>Download Excel  </label><br>
         <a href="<?php echo base_url(); ?>assets/excel/pincode_import.xlsx" download class="btn btn-sm btn-primary">Download Excel</a>
     </div>
-    <div class="col-md-12 pt-5">
+    <div class="col-md-8 pt-5">
         <form action="<?php echo $submit_url; ?>" class="row upload_excel" method="post" enctype="multipart/form-data">
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-8">
                 <label for="bulkPin">Upload Excel</label>
                 <input type="file" class="form-control" name="bulkPincode">
             </div>
-            <div class="form-group col-md-6 mt-4">
+            <div class="form-group col-md-4 mt-4">
                 <button class="btn btn-success" type="submit">Upload</button>
             </div>
         </form>
+    </div>
+    <div class="col-md-4 pt-5">
+        <div class="form-group col-md-6 mt-4">
+            <button class="btn btn-primary csv" style="display:none;" type="submit">Export CSV</button>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="uploading text-center" style="padding:10px;display:none;">
+            Uploading .... 
+        </div>
     </div>
     <div class="col-md-12">
         <div class="progress " style="display:none;">
@@ -42,6 +52,7 @@
 <script>
 $(document).on('submit','.upload_excel',function(e){
     e.preventDefault();
+    $('.uploading').css('display','block');
         $.ajax({
             type: "POST",
             url: "<?php echo $submit_url ?>",
@@ -63,12 +74,16 @@ $(document).on('submit','.upload_excel',function(e){
 
 
 function progressFetch(id){
+    $('.uploading').css('display','none');
     $.ajax({
             type: "POST",
             url: "<?php echo base_url(); ?>Master/processData/"+id,
             dataType: "json",
             success:function(data){
                     $('.updated_count').html("Updated Count : "+data.updated_count+" , Error Count : "+data.error_count);
+                    if(data.error_count != 0){
+                        $('.csv').css('display','block');
+                    }
                     var total = data.total_count;
                     var present = data.process_count;
                     var percent = Math.round((present/total)*100);

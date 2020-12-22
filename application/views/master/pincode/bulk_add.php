@@ -25,7 +25,7 @@
     </div>
     <div class="col-md-4 pt-5">
         <div class="form-group col-md-6 mt-4">
-            <button class="btn btn-primary csv" style="display:none;" type="submit">Export CSV</button>
+            <a href="<?php echo base_url(); ?>master/exportCSV/existPincode" class="btn btn-primary csv" style="display:none;">Export CSV</a>
         </div>
     </div>
     <div class="col-md-12">

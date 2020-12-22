@@ -14,6 +14,7 @@ class Master extends CI_Controller {
         parent::__construct();
         $this->load->library('form_validation');
         $this->load->library('generals_func');
+        $this->load->library('excel');
         $this->form_validation->set_error_delimiters('<p class="text-danger">', '</p>');
         $this->db_ext = $this->config->item('db_priffix');
         $this->load->library('table');
@@ -319,7 +320,7 @@ class Master extends CI_Controller {
         $this->data['head_link'] = array(
             array('link' => base_url('master/bulk_pincode'), 'name' => '<i class="fa fa-file icon-size"></i> Bulk Upload', 'class' => 'btn mkbtn   btn-primary', 'id' => '', 'blank' => '1'),
             array('link' => 'javascript:;', 'class' => 'btn editmain mkbtn btn-success', 'name' => '<i class="fa fa-plus icon-size"></i> Add', 'id' => ''),
-            array('link' => base_url('master/export_master/pincode'), 'name' => '<i class="fa fa-file icon-size"></i> Export', 'class' => 'btn mkbtn   btn-primary', 'id' => '', 'blank' => '1')
+            array('link' => base_url('master/exportCSV/pincode'), 'name' => '<i class="fa fa-file icon-size"></i> Export', 'class' => 'btn mkbtn   btn-primary', 'id' => '', 'blank' => '1')
         );
         $this->data['breadcomb_title'] = 'Master <i class="fa fa-angle-double-right" aria-hidden="true"></i>  Pincode <i class="fa fa-angle-double-right" aria-hidden="true"></i> <span class="active-breadcomb">View</span>';
 
@@ -1872,12 +1873,12 @@ class Master extends CI_Controller {
         $this->data['main_title'] = "Import Bulk Pincode";
         $this->data['status_url'] = base_url('master/updateStatus/PINCODE');
         $this->data['submit_url'] = base_url('master/bulkImportSave');
+        $this->data['export_url'] = base_url('master/exportCSV/existPincode');
 
         $this->load->template('master/pincode/bulk_add', $this->data);
     }
 
     function bulkImportSave(){
-        $this->load->library('excel');
         $status = array();
         $this->UtilityModel->truncate('haashtag_pincode_temp');
         $this->UtilityModel->truncate('haashtag_pincode_error');
@@ -2086,8 +2087,8 @@ class Master extends CI_Controller {
                                 <td>'.$pin_row["state_name"].'</td>
                                 <td>'.$pin_row["gst"].'</td>
                                 <td>'.$pin_row["city_name"].'</td>
+                                <td>'.$pin_row["pincode"].'</td>
                                 <td>'.$row["error"].'</td>
-                                <td>Pincode Exist</td>
                             </tr>';
             }
             }
@@ -2098,7 +2099,8 @@ class Master extends CI_Controller {
         }
     }
 
-    public function fetchProgress(){
+    public function fetchProgress()
+    {
         $data = array();
         $fetchprogress = $this->UtilityModel->val_check('haashtag_pincode_temp');
         foreach($fetchprogress as $row){
@@ -2107,6 +2109,118 @@ class Master extends CI_Controller {
         }
         
         echo json_encode($data);
+    }
+
+    public function exportCSV($page)
+    {
+        if($page == 'existPincode')
+        {
+            $fileName = 'data-'.time().'.xlsx';  
+            $objPHPExcel = new PHPExcel();
+            $objPHPExcel->setActiveSheetIndex(0);
+
+            // $table_columns = array('s.no','','Country Name','Phone Code','Country Type','Zone Code','Zone Name','State Code','State Name','GST Code','City Name','Pincode');
+
+            // $column = 0;
+
+            // foreach($table_columns as $fields){
+            //     $objPHPExcel->getActiveSheet()->SetCellValue($column,1,$fields);
+            //     $column++;
+            // }
+
+            $objPHPExcel->getActiveSheet()->SetCellValue('A1', 's.no');
+            $objPHPExcel->getActiveSheet()->SetCellValue('B1', 'Country Code');
+            $objPHPExcel->getActiveSheet()->SetCellValue('C1', 'Country Name');
+            $objPHPExcel->getActiveSheet()->SetCellValue('D1', 'Phone Code');
+            $objPHPExcel->getActiveSheet()->SetCellValue('E1', 'Country Type'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('F1', 'Zone Code'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('G1', 'Zone Name'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('H1', 'State Code'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('I1', 'State Name'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('J1', 'GST Code'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('K1', 'City Name'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('L1', 'Pincode');   
+            $objPHPExcel->getActiveSheet()->SetCellValue('M1', 'Error');   
+
+            $excel_row = 2;
+
+            $list_error_id = $this->UtilityModel->val_check('haashtag_pincode_error');
+            foreach($list_error_id as $error_row){
+                $pin_exist_array = $this->UtilityModel->val_check('haashtag_pintemp_data','id',$error_row['pin_id']);
+                foreach($pin_exist_array as $exist){
+                    $objPHPExcel->getActiveSheet()->SetCellValue('A'.$excel_row, $exist['id']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('B'.$excel_row, $exist['country_code']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('C'.$excel_row, $exist['country_name']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('D'.$excel_row, $exist['phone_code']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('E'.$excel_row, $exist['type']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('F'.$excel_row, $exist['zone_code']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('G'.$excel_row, $exist['zone_name']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('H'.$excel_row, $exist['state_code']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('I'.$excel_row, $exist['state_name']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('J'.$excel_row, $exist['gst']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('K'.$excel_row, $exist['city_name']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('L'.$excel_row, $exist['pincode']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('M'.$excel_row, $error_row['error']);
+                }
+                $excel_row++;
+            }
+            $filename = "haastag_". date("Y-m-d-H-i-s").".csv";
+            header('Content-Type: application/vnd.ms-excel'); 
+            header('Content-Disposition: attachment;filename="'.$filename.'"');
+            header('Cache-Control: max-age=0'); 
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');  
+            $objWriter->save('php://output'); 
+        }
+        if($page == 'pincode')
+        {
+            $fileName = 'data-'.time().'.xlsx';  
+            $objPHPExcel = new PHPExcel();
+            $objPHPExcel->setActiveSheetIndex(0);
+
+            // $table_columns = array('s.no','','Country Name','Phone Code','Country Type','Zone Code','Zone Name','State Code','State Name','GST Code','City Name','Pincode');
+
+            // $column = 0;
+
+            // foreach($table_columns as $fields){
+            //     $objPHPExcel->getActiveSheet()->SetCellValue($column,1,$fields);
+            //     $column++;
+            // }
+
+            $objPHPExcel->getActiveSheet()->SetCellValue('A1', 's.no');
+            $objPHPExcel->getActiveSheet()->SetCellValue('B1', 'Country Code');
+            $objPHPExcel->getActiveSheet()->SetCellValue('C1', 'Country Name');
+            $objPHPExcel->getActiveSheet()->SetCellValue('D1', 'Zone Code'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('E1', 'Zone Name'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('F1', 'State Code'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('G1', 'State Name'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('H1', 'City Name'); 
+            $objPHPExcel->getActiveSheet()->SetCellValue('I1', 'Pincode');   
+
+            $excel_row = 2;
+
+            $list_error_id = $this->UtilityModel->val_check('haashtag_pincode_error');
+            foreach($list_error_id as $error_row){
+                $pin_exist_array = $this->UtilityModel->val_check('haashtag_pintemp_data','id',$error_row['pin_id']);
+                foreach($pin_exist_array as $exist){
+                    $objPHPExcel->getActiveSheet()->SetCellValue('A'.$excel_row, $exist['id']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('B'.$excel_row, $exist['country_code']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('C'.$excel_row, $exist['country_name']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('D'.$excel_row, $exist['phone_code']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('E'.$excel_row, $exist['type']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('F'.$excel_row, $exist['zone_code']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('G'.$excel_row, $exist['zone_name']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('H'.$excel_row, $exist['state_code']);
+                    $objPHPExcel->getActiveSheet()->SetCellValue('I'.$excel_row, $exist['state_name']);
+                }
+                $excel_row++;
+            }
+            $filename = "haastag_". date("Y-m-d-H-i-s").".csv";
+            header('Content-Type: application/vnd.ms-excel'); 
+            header('Content-Disposition: attachment;filename="'.$filename.'"');
+            header('Cache-Control: max-age=0'); 
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');  
+            $objWriter->save('php://output'); 
+        }
     }
 }
 
